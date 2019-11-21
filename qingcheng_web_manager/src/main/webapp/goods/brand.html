@@ -4,6 +4,31 @@
     <meta charset="UTF-8">
     <title>品牌管理</title>
    <link rel="stylesheet" href="../css/elementui(1).css">
+    <style>
+        .avatar-uploader .el-upload {
+            border: 1px dashed #d9d9d9;
+            border-radius: 6px;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+        .avatar-uploader .el-upload:hover {
+            border-color: #409EFF;
+        }
+        .avatar-uploader-icon {
+            font-size: 28px;
+            color: #8c939d;
+            width: 178px;
+            height: 178px;
+            line-height: 178px;
+            text-align: center;
+        }
+        .avatar {
+            width: 178px;
+            height: 178px;
+            display: block;
+        }
+    </style>
 </head>
 <body>
     <div id="app">
@@ -40,7 +65,7 @@
                     label="图片"
                     width="180">
                 <template slot-scope="scope">
-                    <img :src="scope.row.image" >
+                    <img width="102" height="36" :src="scope.row.image" >
                 </template>-->
             </el-table-column>
            <el-table-column
@@ -73,7 +98,15 @@
                         <el-input placeholder="品牌首字母" v-model="pojo.letter"></el-input>
                     </el-form-item>
                     <el-form-item label="品牌图片">
-                        <el-input placeholder="品牌图片" v-model="pojo.image"></el-input>
+                        <el-upload
+                                class="avatar-uploader"
+                                action="/upload/oss.do?folder=project"
+                                :show-file-list="false"
+                                :on-success="handleAvatarSuccess"
+                                :before-upload="beforeAvatarUpload">
+                            <img v-if="imageUrl" :src="imageUrl" class="avatar">
+                            <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+                        </el-upload>
                     </el-form-item>
                     <el-form-item label="排序">
                         <el-input placeholder="品牌名称" v-model="pojo.seq"></el-input>
@@ -100,7 +133,8 @@
                     total:10,
                     searchMap:{},
                     formVisible:false,
-                    pojo:{}
+                    pojo:{},
+                    imageUrl:''
                 }
             },
             created(){
@@ -118,15 +152,27 @@
                     });
                 },
                 save(){
-                    axios.post(`/brand/${this.pojo==null?'add':'update'}.do`,this.pojo).then(response => {
-                        this.fetchData();//刷新列表          
-                        this.formVisible = false;//关闭窗口      });
+                    this.pojo.image = this.imageUrl;
+                    axios.post(`/brand/${this.pojo.id==null?'add':'update'}.do`,this.pojo).then(response => {
+                        if (response.data.code==0) {
+                            this.fetchData();//刷新列表          
+                            this.formVisible = false;//关闭窗口      });
+                        }else{
+                            this.$alert(response.data.message);
+                        }
+
                     });
                 },
                 edit(id){
                     this.formVisible=true;
                     axios.get(`/brand/findById.do?id=${id}`).then(response => {
-                        this.pojo=response.data;
+                        if (response.data.code==0) {
+                            this.pojo=response.data;
+                            this.imageUrl = this.pojo.image;
+                            this.fetchData();
+                        }else{
+                            this.$alert(response.data.message);
+                        }
                     });
                 },
                 dele(id,name){
@@ -144,6 +190,22 @@
                         });
                     });
 
+                },
+                handleAvatarSuccess(res,file){
+                    alert(file.response)
+                    this.imageUrl = file.response;
+                },
+                beforeAvatarUpload(file){
+                    const isJPG = file.type === 'image/jpeg';
+                    const isLt2M = file.size / 1024 / 1024 < 2;
+
+                    if (!isJPG) {
+                        this.$message.error('上传头像图片只能是 JPG 格式!');
+                    }
+                    if (!isLt2M) {
+                        this.$message.error('上传头像图片大小不能超过 2MB!');
+                    }
+                    return isJPG && isLt2M;
                 }
             }
         })
