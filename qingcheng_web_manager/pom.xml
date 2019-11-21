@@ -8,36 +8,32 @@
         <version>1.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
-
-    <artifactId>qingcheng_common_web</artifactId>
+    <packaging>war</packaging>
+    <artifactId>qingcheng_web_manager</artifactId>
     <dependencies>
         <dependency>
             <groupId>com.qingcheng</groupId>
-            <artifactId>qingcheng_common</artifactId>
+            <artifactId>qingcheng_interface</artifactId>
             <version>1.0-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>commons-fileupload</groupId>
-            <artifactId>commons-fileupload</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.security</groupId>
-            <artifactId>spring-security-web</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.security</groupId>
-            <artifactId>spring-security-config</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>com.aliyun.oss</groupId>
-            <artifactId>aliyun-sdk-oss</artifactId>
         </dependency>
         <dependency>
             <groupId>com.qingcheng</groupId>
-            <artifactId>qingcheng_pojo</artifactId>
+            <artifactId>qingcheng_common_web</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
     </dependencies>
-
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.tomcat.maven</groupId>
+                <artifactId>tomcat7-maven-plugin</artifactId>
+                <configuration>
+                    <!-- 指定端口 -->
+                    <port>9101</port>
+                    <!-- 请求路径 -->
+                    <path>/</path>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>
